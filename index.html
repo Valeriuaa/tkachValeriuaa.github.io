@@ -1,0 +1,588 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>UP.01 — Отчет по учебной практике — Ткач В.Е.</title>
+
+  <!-- AOS for scroll animations -->
+  <link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+
+  <style>
+    :root{
+      --bg-1: #071025;
+      --bg-2: #081226;
+      --card: rgba(11,18,32,0.85);
+      --accent: #6ee7b7;
+      --accent-2: #60a5fa;
+      --muted: #9aa4b2;
+      --glass: rgba(255,255,255,0.03);
+      --neon: rgba(110,231,183,0.16);
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{font-family:Inter,Segoe UI,Arial; margin:0; color:#dbe7f0; background:linear-gradient(180deg,var(--bg-1),var(--bg-2)); -webkit-font-smoothing:antialiased; overflow-x:hidden}
+
+    /* Particle canvas */
+    #bgCanvas{position:fixed;left:0;top:0;width:100%;height:100%;z-index:0;pointer-events:none}
+
+    .container{max-width:1180px;margin:36px auto;padding:24px;position:relative;z-index:5}
+    header{display:flex;align-items:center;gap:18px}
+    .logo{width:72px;height:72px;border-radius:14px;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:flex;align-items:center;justify-content:center;font-weight:800;color:#012;box-shadow:0 8px 40px rgba(6,8,15,0.6);transform:translateZ(0)}
+    h1{margin:0;font-size:24px}
+    p.lead{color:var(--muted);margin:6px 0 18px}
+
+    /* Nav */
+    nav{position:fixed;right:20px;top:20px;background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));border-radius:12px;padding:10px;backdrop-filter:blur(6px);box-shadow:0 8px 30px rgba(2,6,23,0.6);z-index:10}
+    nav a{display:block;color:var(--muted);text-decoration:none;padding:8px 12px;border-radius:8px;margin:4px 0}
+    nav a.active, nav a:hover{color:white;background:linear-gradient(90deg,var(--accent),var(--accent-2));box-shadow:0 6px 18px rgba(96,165,250,0.12)}
+
+    /* Grid */
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px;margin:18px 0}
+    .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:16px;padding:18px;box-shadow:0 12px 40px rgba(2,6,23,0.6);border:1px solid rgba(255,255,255,0.03);transition:transform .32s,box-shadow .32s}
+    .card:hover{transform:translateY(-12px) rotate(-0.2deg);box-shadow:0 28px 60px rgba(2,6,23,0.85)}
+    .card::after{content:'';position:absolute;inset:0;border-radius:16px;pointer-events:none;mix-blend-mode:screen}
+    .card small{display:block;color:var(--muted);margin-bottom:8px}
+    .card h3{margin:0;font-size:16px}
+
+    .cta{display:inline-flex;align-items:center;gap:10px;padding:10px 14px;border-radius:12px;background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#022;font-weight:700;text-decoration:none;box-shadow:0 10px 26px rgba(96,165,250,0.12);transition:transform .18s}
+    .cta:active{transform:scale(.98)}
+
+    section{margin:28px 0;padding:20px;border-radius:14px;background:linear-gradient(180deg, rgba(255,255,255,0.015), rgba(255,255,255,0.01));border:1px solid rgba(255,255,255,0.02);box-shadow:0 8px 24px rgba(2,6,23,0.5)}
+    .section-title{display:flex;align-items:center;gap:12px}
+    .section-title h2{margin:0}
+    .code-block{margin-top:12px}
+    pre{border-radius:10px;overflow:auto;padding:16px;background:#071623}
+
+    .inline-form{display:flex;gap:8px;align-items:center}
+    input[type=text], input[type=number]{padding:10px 12px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);background:rgba(255,255,255,0.02);color:inherit;outline:none}
+    button.primary{padding:10px 14px;border-radius:10px;border:0;background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#022;font-weight:800;cursor:pointer}
+
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:10px;border-bottom:1px dashed rgba(255,255,255,0.03);text-align:left}
+    th{color:var(--muted);font-weight:600}
+
+    .two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    .list{min-height:140px;padding:12px;border-radius:10px;background:linear-gradient(180deg,rgba(255,255,255,0.01),rgba(255,255,255,0.005));border:1px solid rgba(255,255,255,0.02)}
+    .task{padding:10px;border-radius:8px;margin-bottom:8px;background:linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));display:flex;justify-content:space-between;align-items:center}
+
+    footer{margin-top:36px;color:var(--muted);font-size:13px;display:flex;justify-content:space-between;align-items:center}
+
+    /* Back to top */
+    #toTop{position:fixed;right:22px;bottom:22px;background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#022;border-radius:50%;width:52px;height:52px;display:flex;align-items:center;justify-content:center;font-weight:800;box-shadow:0 12px 28px rgba(96,165,250,0.14);cursor:pointer;z-index:12;display:none}
+
+    /* Neon hover */
+    .neon{position:relative}
+    .neon:after{content:'';position:absolute;inset:-2px;border-radius:10px;filter:blur(12px);opacity:0;transition:opacity .22s;background:linear-gradient(90deg,var(--accent),var(--accent-2))}
+    .neon:hover:after{opacity:1}
+
+    /* Ripple for buttons */
+    .ripple{position:relative;overflow:hidden}
+    .ripple span{position:absolute;border-radius:50%;transform:scale(0);animation:ripple .6s linear;opacity:.6;background:rgba(255,255,255,0.3)}
+    @keyframes ripple{to{transform:scale(4);opacity:0}}
+
+    /* Мобильные стили */
+@media (max-width:900px){
+  nav{position:static;display:flex;flex-wrap:wrap;justify-content:center;margin:12px 0;padding:6px;gap:6px}
+  nav a{padding:6px 10px;font-size:14px;margin:2px}
+  .grid{grid-template-columns:1fr;gap:12px;margin:12px 0}
+  .two-col{grid-template-columns:1fr;gap:12px}
+  .inline-form{flex-direction:column;align-items:flex-start;gap:8px}
+  .inline-form input, .inline-form button{width:100%}
+  section{padding:16px;margin:16px 0}
+  .card h3{font-size:15px}
+  .card small{font-size:13px}
+  .code-block pre{font-size:12px;padding:12px}
+  .list{min-height:120px;padding:10px}
+  #toTop{width:44px;height:44px;right:16px;bottom:16px;font-size:18px}
+}
+
+  </style>
+</head>
+<body>
+  <canvas id="bgCanvas"></canvas>
+
+  <div class="container">
+    <header>
+      <div class="logo neon" data-aos="zoom-in">UP</div>
+      <div>
+        <h1 data-aos="fade-up">Отчёт по учебной практике УП.01 — Разработка модулей ПО</h1>
+        <p class="lead" data-aos="fade-up" data-aos-delay="80">Выполнила: <strong>Ткач Валерия Евгеньевна</strong> — студентка 4 курса. Демонстрация практики, кода, диаграмм и руководств.</p>
+      </div>
+    </header>
+
+    <nav aria-label="Навигация" data-aos="fade-left">
+      <a href="#linear">1. Линейный</a>
+      <a href="#rps">2. Камень/Ножницы/Бумага</a>
+      <a href="#harmonic">3. Сумма ряда</a>
+      <a href="#airport">4. Аэропорт</a>
+      <a href="#pm">5. Project Manager</a>
+      <a href="#asm">6. Ассемблер</a>
+      <a href="#ais">7. АИС «Отдел кадров»</a>
+      <a href="#spec">8. Техническое задание</a>
+      <a href="#mobile">9. Мобильное приложение</a>
+      <a href="#userguide">10. Руководство пользователя</a>
+      <a href="#conclusion">Заключение</a>
+      <a href="#refs">Список литературы</a>
+      <a href="#footer">Футер</a>
+    </nav>
+
+    <div class="grid" data-aos="fade-up" data-aos-delay="120">
+      <div class="card neon" style="position:relative">
+        <small>Задание 1</small>
+        <h3>Линейный алгоритм — Треугольник</h3>
+        <a class="cta" href="#linear">Открыть</a>
+      </div>
+      <div class="card neon">
+        <small>Задание 2</small>
+        <h3>Камень-Ножницы-Бумагa — интерактив</h3>
+        <a class="cta" href="#rps">Открыть</a>
+      </div>
+      <div class="card neon">
+        <small>Задание 3</small>
+        <h3>Циклический алгоритм — Сумма ряда</h3>
+        <a class="cta" href="#harmonic">Открыть</a>
+      </div>
+      <div class="card neon">
+        <small>Задание 4</small>
+        <h3>Проектирование классов — Аэропорт</h3>
+        <a class="cta" href="#airport">Открыть</a>
+      </div>
+      <div class="card neon">
+        <small>Задание 5</small>
+        <h3>Графический интерфейс — Project Manager (веб)</h3>
+        <a class="cta" href="#pm">Открыть</a>
+      </div>
+      <div class="card neon">
+        <small>Ассемблер</small>
+        <h3>Задания 6.1 / 6.2</h3>
+        <a class="cta" href="#asm">Открыть</a>
+      </div>
+      <div class="card neon">
+        <small>АИС</small>
+        <h3>Отдел кадров — проект и реализация</h3>
+        <a class="cta" href="#ais">Открыть</a>
+      </div>
+    </div>
+
+    <!-- SECTION 1 -->
+    <section id="linear" data-aos="fade-up">
+      <div class="section-title">
+        <h2>1. Линейный алгоритм — треугольник</h2>
+      </div>
+      <p>Условие: в равнобедренном треугольнике основание на 5 см меньше боковой стороны. Периметр = 35 см. Найти длины сторон.</p>
+
+      <div style="display:flex;gap:14px;flex-wrap:wrap;align-items:center">
+        <button class="primary ripple" id="runTriangle">Выполнить расчёт</button>
+        <div id="triangleResult" style="color:var(--muted)"></div>
+      </div>
+
+      <div style="margin-top:14px;display:flex;gap:14px;flex-wrap:wrap;align-items:flex-start">
+        <div style="flex:1;min-width:260px">
+          
+
+        <div style="flex:1;min-width:320px">
+          <h4>Код (Java)</h4>
+          <div class="code-block"><pre><code class="language-java">public class LinearTriangle {
+    public static void main(String[] args) {
+        double P = 35; // Периметр
+        double d = 5;  // Разница между боковой и основанием
+
+        double a = (P + d) / 3; // боковая
+        double b = a - d;       // основание
+
+        System.out.println("Боковая сторона a = " + a + " см");
+        System.out.println("Основание b = " + b + " см");
+    }
+}</code></pre></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 2 -->
+    <section id="rps" data-aos="fade-up">
+      <div class="section-title"><h2>2. Камень — Ножницы — Бумага (интерактив)</h2></div>
+      <p>Проверьте своё решение прямо в браузере.</p>
+
+      <div style="display:flex;gap:12px;align-items:center;margin-top:10px">
+        <button class="cta ripple" onclick="playRPS('камень')">Камень</button>
+        <button class="cta ripple" onclick="playRPS('ножницы')">Ножницы</button>
+        <button class="cta ripple" onclick="playRPS('бумага')">Бумага</button>
+      </div>
+
+      <div style="margin-top:12px;color:var(--muted)"><strong>Результат:</strong> <span id="rpsResult">—</span></div>
+
+      <div style="margin-top:12px;display:flex;gap:12px;flex-wrap:wrap">
+        <div style="flex:1;min-width:320px">
+         
+    
+        <div style="flex:1;min-width:320px">
+          <h4>Java — Логика</h4>
+          <div class="code-block"><pre><code class="language-java">if (player1.equals(player2)) {
+    System.out.println("Ничья!");
+} else if ((player1.equals("камень") && player2.equals("ножницы")) ||
+           (player1.equals("ножницы") && player2.equals("бумага")) ||
+           (player1.equals("бумага") && player2.equals("камень"))) {
+    System.out.println("Победил Игрок 1!");
+} else {
+    System.out.println("Победил Игрок 2!");
+}</code></pre></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 3 -->
+    <section id="harmonic" data-aos="fade-up">
+      <div class="section-title"><h2>3. Циклический алгоритм — сумма ряда</h2></div>
+      <p>H<sub>N</sub> = 1 + 1/2 + ... + 1/N</p>
+
+      <div class="inline-form" style="margin-top:10px">
+        <input id="nInput" type="number" placeholder="Введите N" min="1" />
+        <button class="primary ripple" onclick="calcHarmonic()">Вычислить</button>
+        <div id="harmResult" style="margin-left:10px;color:var(--muted)"></div>
+      </div>
+
+      <div style="margin-top:12px;display:flex;gap:12px;flex-wrap:wrap">
+        <div style="flex:1;min-width:300px">
+          
+        <div style="flex:1;min-width:300px">
+          <h4>Код</h4>
+          <div class="code-block"><pre><code class="language-java">for (int i = 1; i <= N; i++) {
+    sum += 1.0 / i;
+}
+System.out.printf("Сумма = %.5f%n", sum);</code></pre></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 4 -->
+    <section id="airport" data-aos="fade-up">
+      <div class="section-title"><h2>4. Проектирование классов — Airport</h2></div>
+      <p>Добавляйте рейсы, ищите, удаляйте. Данные сохраняются в браузере.</p>
+
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+        <input id="flightNumber" placeholder="Номер рейса" type="text" />
+        <input id="destination" placeholder="Направление" type="text" />
+        <input id="departureTime" placeholder="Время (hh:mm)" type="text" />
+        <button class="primary ripple" onclick="addFlight()">Добавить рейс</button>
+      </div>
+
+      <div style="margin-top:12px">
+        <table>
+          <thead><tr><th>Номер</th><th>Направление</th><th>Вылет</th><th></th></tr></thead>
+          <tbody id="flightsTable"></tbody>
+        </table>
+      </div>
+
+      <div style="margin-top:12px;display:flex;gap:12px;flex-wrap:wrap">
+        <div style="flex:1">
+          
+        <div style="flex:1">
+          <h4>Java — примеры классов</h4>
+          <div class="code-block"><pre><code class="language-java">class Flight {
+    private String flightNumber;
+    private String destination;
+    private String departureTime;
+    // геттеры/сеттеры, toString()
+}
+class Airport {
+    private List<Flight> flights = new ArrayList<>();
+    public void addFlight(Flight f){ flights.add(f); }
+    public boolean removeFlight(String flightNumber){ /* ... */ }
+    public Flight findFlight(String flightNumber){ /* ... */ }
+}</code></pre></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 5 -->
+    <section id="pm" data-aos="fade-up">
+      <div class="section-title"><h2>5. Графический интерфейс — Project Manager (веб)</h2></div>
+      <p>Макет приложения: создавайте проекты и задачи. Всё сохраняется локально.</p>
+
+      <div class="two-col" style="margin-top:12px">
+        <div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <input id="projectName" placeholder="Название проекта" type="text" />
+            <button class="primary ripple" onclick="addProject()">Добавить проект</button>
+          </div>
+          <div id="projectsList" class="list" style="margin-top:12px"></div>
+        </div>
+
+        <div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <input id="taskName" placeholder="Название задачи" type="text" />
+            <button class="primary ripple" onclick="addTaskToProject()">Добавить задачу</button>
+          </div>
+          <div id="tasksList" class="list" style="margin-top:12px"></div>
+          <div style="margin-top:10px;color:var(--muted)">Выберите проект слева (кнопка «Открыть»).</div>
+        </div>
+      </div>
+
+      <div style="margin-top:14px;display:flex;gap:14px;flex-wrap:wrap">
+        <div style="flex:1;min-width:260px">
+          
+        <div style="flex:1;min-width:260px">
+          <h4>Java — GUI (Swing)</h4>
+          <div class="code-block"><pre><code class="language-java">class Project { String name; List<Task> tasks = new ArrayList<>(); }
+class Task { String title; boolean completed; }
+// Swing: JList<Project> + DefaultListModel<Project>, ActionListener для кнопок,
+// диалоги для создания/редактирования задач и проектов.</code></pre></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 6: ASM -->
+    <section id="asm" data-aos="fade-up">
+      <div class="section-title"><h2>6. Ассемблер</h2></div>
+      <p>Выполнены задания по базовым операциям с 32/64-битными числами, демонстрация сдвигов, операций над регистрами и вызовов процедур.</p>
+
+      <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:10px">
+        <div style="flex:1;min-width:320px">
+          <h4>Задание 6.1 — умножение/деление (MASM)</h4>
+          <div class="code-block"><pre><code class="language-asm">.386
+.model flat, stdcall
+option casemap:none
+include \masm32\include\kernel32.inc
+include \masm32\include\user32.inc
+includelib \masm32\lib\kernel32.lib
+includelib \masm32\lib\user32.lib
+
+.data
+    N dq 10
+
+.code
+start:
+    ; пример сдвига для умножения на 2
+    mov eax, dword ptr N
+    shl eax, 1
+    ; далее формирование строк и MessageBox
+    invoke ExitProcess, 0
+end start</code></pre></div>
+        </div>
+
+        <div style="flex:1;min-width:320px">
+          <h4>Задание 6.2 — процедуры Padd / Psub</h4>
+          <div class="code-block"><pre><code class="language-asm">Padd proc x:DWORD, a:DWORD
+    mov eax, x
+    add eax, a
+    ret
+Padd endp
+
+Psub proc x:DWORD, a:DWORD
+    mov eax, x
+    sub eax, a
+    ret
+Psub endp</code></pre></div>
+        </div>
+      </div>
+
+      <p style="margin-top:12px;color:var(--muted)">Результаты представлены в виде MessageBox-окон в среде MASM32. </p>
+    </section>
+
+    <!-- SECTION 7: AIS -->
+    <section id="ais" data-aos="fade-up">
+      <div class="section-title"><h2>7. Разработка АИС «Отдел кадров»</h2></div>
+      <p>Проект АИС предназначен для централизованного учета сотрудников, департаментов, должностей и отпусков. В отчёте реализованы ER-диаграмма, диаграмма классов, диаграммы последовательности и состояний, а также прототип настольного приложения на Java Swing и модуль сохранения данных.</p>
+
+      <div style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        
+
+        <div>
+          <h4>Ключевые классы — выдержки из кода</h4>
+          <div class="code-block"><pre><code class="language-java">public class DBManager implements Serializable {
+    private List<Employee> employees = new ArrayList<>();
+    private List<Department> departments = new ArrayList<>();
+    private List<Position> positions = new ArrayList<>();
+    // методы: addEmployee, deleteEmployee, findEmployeeByLastName, saveData/loadData
+}</code></pre></div>
+        </div>
+
+        
+
+      <p style="margin-top:12px;color:var(--muted)">Система сохраняет данные в локальный сериализованный файл (data.ser) и поддерживает экспорт сотрудников, департаментов и должностей в текстовые файлы.</p>
+    </section>
+
+    <!-- SECTION 8: Spec / TЗ -->
+    <section id="spec" data-aos="fade-up">
+      <div class="section-title"><h2>8. Техническое задание (фрагмент)</h2></div>
+      <p>Ниже — выдержки из ТЗ на АИС «Отдел кадров»: назначение, функции, требования к платформе и безопасности.</p>
+
+      <div style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div>
+          <h4>Назначение системы</h4>
+          <p style="color:var(--muted)">Автоматизировать учёт сотрудников предприятия, обеспечить хранение и редактирование данных, разграничение прав доступа и экспорт/резервное копирование.</p>
+        </div>
+        <div>
+          <h4>Требования</h4>
+          <p style="color:var(--muted)">Платформа: Java 17; Интерфейс: Java Swing; Хранение: локальная файловая система; Роли: администратор, HR; Безопасность: контроль доступа по ролям.</p>
+        </div>
+
+        <div>
+          <h4>Функции</h4>
+          <p style="color:var(--muted)">CRUD-операции по сотрудникам, департаментам и должностям; аутентификация; экспорт данных; логирование операций; восстановление данных при запуске.</p>
+        </div>
+        <div>
+          <h4>Этапы разработки</h4>
+          <p style="color:var(--muted)">Проектирование → Реализация → Тестирование → Внедрение и обучение пользователей.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 9: Mobile -->
+    <section id="mobile" data-aos="fade-up">
+      <div class="section-title"><h2>9. Разработка мобильного приложения</h2></div>
+      <p>Мобильное приложение «Отдел кадров» реализовано на Kotlin с архитектурой MVVM, локальным хранением в SharedPreferences (JSON) и хранением фотографий в приватной папке приложения.</p>
+
+      <div style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div>
+          <h4>Архитектура</h4>
+          <p style="color:var(--muted)">MVVM: Repository (EmployeePrefs) → ViewModel → UI (Activity/Fragment). Используется RecyclerView + ListAdapter + DiffUtil для эффективного обновления списка.</p>
+        </div>
+        <div>
+          <h4>Фрагменты кода (Kotlin)</h4>
+          <div class="code-block"><pre><code class="language-kotlin">// Пример: сохранение списка сотрудников в SharedPreferences (JSON)
+fun saveEmployees(list: List<Employee>) {
+    val json = gson.toJson(list)
+    prefs.edit().putString(KEY_EMPLOYEES, json).apply()
+}</code></pre></div>
+        </div>
+
+        <div>
+          <h4>UI / UX</h4>
+          <p style="color:var(--muted)">Главный экран — список карточек сотрудников с фото, имя/должность/отдел. Экран создания/редактирования с валидацией полей. Экспорт отчётов в PDF/Excel (в перспективе).</p>
+        </div>
+
+        <div>
+          <h4>Тестирование</h4>
+          <p style="color:var(--muted)">Покрытие тестами: операции репозитория и логика ViewModel. UI-тесты: проверки добавления/редактирования сотрудников, сохранения фото и восстановления после поворота экрана.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 10: User guide -->
+    <section id="userguide" data-aos="fade-up">
+      <div class="section-title"><h2>10. Руководство пользователя (краткое)</h2></div>
+      <p>Короткое руководство по работе с АИС «Отдел кадров» и мобильным приложением: вход, добавление сотрудника, редактирование, экспорт и восстановление данных.</p>
+
+      <div style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div>
+          <h4>Вход в систему</h4>
+          <p style="color:var(--muted)">Запустите приложение, введите логин/пароль. Для первой инициализации предусмотрены учётные записи admin/admin123 и hr/hr123.</p>
+        </div>
+        <div>
+          <h4>Добавление сотрудника</h4>
+          <p style="color:var(--muted)">Вкладка «Сотрудники» → «Добавить» → заполните поля: имя, фамилия, департамент, должность → ОК. Данные сохраняются автоматически.</p>
+        </div>
+
+        <div>
+          <h4>Редактирование и удаление</h4>
+          <p style="color:var(--muted)">Выберите запись в таблице → «Редактировать» или «Удалить». Права удаления ограничены для роли HR.</p>
+        </div>
+
+        <div>
+          <h4>Экспорт и резервное копирование</h4>
+          <p style="color:var(--muted)">Кнопка «Сохранить в файл» сохраняет список сотрудников в текстовый файл; регулярное копирование data.ser рекомендуется для резервирования.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 11: Conclusion -->
+    <section id="conclusion" data-aos="fade-up">
+      <div class="section-title"><h2>Заключение</h2></div>
+      <p>В ходе практики были закреплены знания по алгоритмам, объектно-ориентированному проектированию, разработке GUI, проектированию АИС и мобильных приложений. Разработанные модули и прототипы демонстрируют понимание архитектуры приложений, методов сохранения данных и принципов безопасности. Полученные навыки создают базу для дальнейшего профессионального роста и внедрения реальных решений в области разработки программного обеспечения.</p>
+    </section>
+
+    <!-- SECTION 12: References -->
+    <section id="refs" data-aos="fade-up">
+      <div class="section-title"><h2>Список использованной литературы</h2></div>
+
+      <div style="margin-top:12px;color:var(--muted);line-height:1.6">
+        <!-- Список по ГОСТ Р 7.0.5–2008, в алфавитном порядке -->
+        <div>1. Бёрд А. Kotlin. Полное руководство для разработчиков. — Санкт-Петербург: Питер, 2022. — 624 с.</div>
+        <div>2. Блох Дж. Java. Эффективное программирование. 3-е изд. — Санкт-Петербург: Питер, 2021. — 416 с.</div>
+        <div>3. Влиссидес Д., Гамма Э., Хелм Р., Джонсон Р. Приёмы объектно-ориентированного проектирования. Паттерны проектирования. Новое изд. — Санкт-Петербург: Питер, 2020. — 480 с.</div>
+        <div>4. Дакетт Д. HTML и CSS. Разработка и дизайн веб-сайтов. Обновл. изд. — Москва: Эксмо, 2020. — 512 с.</div>
+        <div>5. Ли Д., Макфарланд Д. JavaScript и jQuery. Интерактивная веб-разработка. Новое изд. — Москва: Эксмо, 2020. — 1088 с.</div>
+        <div>6. Нилд Р. Алгоритмы. Пошаговое руководство. — Москва: Эксмо, 2021. — 368 с.</div>
+        <div>7. Сеймур Д., Левин Д. Алгоритмы и структуры данных для начинающих. — Москва: Бомбора, 2022. — 352 с.</div>
+        <div>8. Сьерра К., Бейтс Б. Изучаем Java. 3-е изд. — Санкт-Петербург: Питер, 2021. — 720 с.</div>
+        <div>9. Фаулер М. Рефакторинг. Улучшение существующего кода. 2-е изд. — Санкт-Петербург: Питер, 2020. — 448 с.</div>
+        <div>10. Флиг Дж. Мобильная разработка на Android. Полное руководство. — Москва: Бомбора, 2021. — 624 с.</div>
+      </div>
+    </section>
+
+    <footer id="footer">
+      <div>Автор: <strong>Ткач Валерия Евгеньевна</strong> — ГБУ КО ПОО «КИТиС», Калининград, 2025</div>
+      <div style="color:var(--muted)">Отчёт — УП.01 Разработка модулей ПО</div>
+    </footer>
+  </div>
+
+  <div id="toTop">↑</div>
+
+  <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script>
+    AOS.init({duration:700,once:true});
+
+    // Particle background
+    const canvas = document.getElementById('bgCanvas');
+    const ctx = canvas.getContext('2d');
+    let w = canvas.width = innerWidth; let h = canvas.height = innerHeight;
+    window.addEventListener('resize',()=>{w=canvas.width=innerWidth;h=canvas.height=innerHeight;initParticles()});
+    const particles=[]; const PARTICLE_COUNT = Math.max(40, Math.floor(w/30));
+    function initParticles(){particles.length=0; for(let i=0;i<PARTICLE_COUNT;i++){particles.push({x:Math.random()*w,y:Math.random()*h,r:Math.random()*1.6+0.6,vx:(Math.random()-0.5)*0.4,vy:(Math.random()-0.5)*0.4})}}
+    function draw(){ctx.clearRect(0,0,w,h); for(const p of particles){ctx.beginPath();ctx.fillStyle='rgba(96,165,250,0.08)';ctx.shadowBlur=12;ctx.shadowColor='rgba(110,231,183,0.06)';ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fill(); p.x+=p.vx; p.y+=p.vy; if(p.x<0)p.x=w; if(p.x>w)p.x=0; if(p.y<0)p.y=h; if(p.y>h)p.y=0;} requestAnimationFrame(draw)}
+    initParticles(); draw();
+
+    // Utilities: ripples for buttons
+    document.querySelectorAll('.ripple').forEach(btn=>{btn.addEventListener('click',function(e){const rect=this.getBoundingClientRect(); const span=document.createElement('span'); const size=Math.max(rect.width,rect.height); span.style.width=span.style.height = size + 'px'; span.style.left = (e.clientX-rect.left - size/2) + 'px'; span.style.top = (e.clientY-rect.top - size/2) + 'px'; this.appendChild(span); setTimeout(()=>span.remove(),700);});});
+
+    // Smooth nav active state
+    const navLinks = document.querySelectorAll('nav a');
+    function onScroll(){let fromTop=scrollY+80; navLinks.forEach(link=>{const id=link.getAttribute('href'); if(!id.startsWith('#')) return; const sec=document.querySelector(id); if(!sec) return; if(sec.offsetTop<=fromTop && sec.offsetTop+sec.offsetHeight>fromTop) {navLinks.forEach(l=>l.classList.remove('active')); link.classList.add('active')} });
+      // toTop visibility
+      document.getElementById('toTop').style.display = (window.scrollY>400)?'flex':'none'; }
+    window.addEventListener('scroll',onScroll); onScroll();
+    document.getElementById('toTop').addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));
+
+    // ----- Triangle -----
+    document.getElementById('runTriangle').addEventListener('click',()=>{const P=35,d=5;const a=(P+d)/3;const b=a-d;document.getElementById('triangleResult').textContent=`Боковая a=${a.toFixed(2)} см, основание b=${b.toFixed(2)} см`;});
+
+    // ----- RPS -----
+    function playRPS(player){const options=['камень','ножницы','бумага'];const cpu=options[Math.floor(Math.random()*3)];let res=''; if(player===cpu) res='Ничья! Оба: '+player; else if((player==='камень'&&cpu==='ножницы')||(player==='ножницы'&&cpu==='бумага')||(player==='бумага'&&cpu==='камень')) res='Вы победили! CPU: '+cpu; else res='Вы проиграли. CPU: '+cpu; document.getElementById('rpsResult').textContent=res} window.playRPS=playRPS;
+
+    // ----- Harmonic -----
+    function calcHarmonic(){const n=parseInt(document.getElementById('nInput').value);const target=document.getElementById('harmResult'); if(!n||n<=0){target.textContent='Введите положительное целое N';return} let sum=0; for(let i=1;i<=n;i++) sum+=1/i; target.textContent=`H_${n} = ${sum.toFixed(8)}`;} window.calcHarmonic=calcHarmonic;
+
+    // ----- Airport (with localStorage) -----
+    const FLIGHTS_KEY='up01_flights_v2'; let flights = JSON.parse(localStorage.getItem(FLIGHTS_KEY)||'[]');
+    function renderFlights(){const tbody=document.getElementById('flightsTable'); tbody.innerHTML=''; flights.forEach((f,idx)=>{const tr=document.createElement('tr'); tr.innerHTML=`<td>${escapeHtml(f.number)}</td><td>${escapeHtml(f.dest)}</td><td>${escapeHtml(f.time)}</td><td><button onclick="removeFlight(${idx})">Удалить</button></td>`; tbody.appendChild(tr);});}
+    function addFlight(){const num=document.getElementById('flightNumber').value.trim();const dest=document.getElementById('destination').value.trim();const time=document.getElementById('departureTime').value.trim(); if(!num||!dest||!time) return alert('Заполните все поля'); flights.push({number:num,dest:dest,time:time}); saveFlights(); document.getElementById('flightNumber').value='';document.getElementById('destination').value='';document.getElementById('departureTime').value=''; renderFlights();}
+    function removeFlight(i){if(!confirm('Удалить рейс?')) return; flights.splice(i,1); saveFlights(); renderFlights();}
+    function saveFlights(){localStorage.setItem(FLIGHTS_KEY,JSON.stringify(flights));}
+    window.addFlight=addFlight; window.removeFlight=removeFlight; renderFlights();
+
+    // ----- Project manager (with localStorage) -----
+    const PROJECTS_KEY='up01_projects_v2'; let projects=JSON.parse(localStorage.getItem(PROJECTS_KEY)||'[]'); let selectedProject=null;
+    function saveProjects(){localStorage.setItem(PROJECTS_KEY,JSON.stringify(projects));}
+    function renderProjects(){const el=document.getElementById('projectsList'); el.innerHTML=''; projects.forEach((p,idx)=>{const d=document.createElement('div'); d.className='task'; d.innerHTML=`<span>${escapeHtml(p.name)}</span><span><button onclick="selectProject(${idx})">Открыть</button> <button onclick="deleteProject(${idx})">Удалить</button></span>`; el.appendChild(d);});}
+    function addProject(){const name=document.getElementById('projectName').value.trim(); if(!name) return alert('Введите название проекта'); projects.push({name:name,tasks:[]}); document.getElementById('projectName').value=''; saveProjects(); renderProjects();}
+    function selectProject(i){selectedProject=i; renderTasks();}
+    function deleteProject(i){if(!confirm('Удалить проект?')) return; projects.splice(i,1); if(selectedProject===i) selectedProject=null; saveProjects(); renderProjects(); renderTasks();}
+    function addTaskToProject(){if(selectedProject===null){alert('Сначала выберите проект (Открыть)');return} const t=document.getElementById('taskName').value.trim(); if(!t) return alert('Введите название задачи'); projects[selectedProject].tasks.push({title:t,done:false}); document.getElementById('taskName').value=''; saveProjects(); renderTasks();}
+    function renderTasks(){const el=document.getElementById('tasksList'); el.innerHTML=''; if(selectedProject===null){el.innerHTML='<div style="color:var(--muted)">Проект не выбран</div>';return} projects[selectedProject].tasks.forEach((task,idx)=>{const d=document.createElement('div'); d.className='task'; d.innerHTML=`<span>${task.done?'<s>'+escapeHtml(task.title)+'</s>':escapeHtml(task.title)}</span><span><button onclick="toggleTask(${idx})">${task.done?'Отметить как невып.':'Выполнить'}</button> <button onclick="removeTask(${idx})">Удалить</button></span>`; el.appendChild(d);});}
+    function toggleTask(i){projects[selectedProject].tasks[i].done=!projects[selectedProject].tasks[i].done; saveProjects(); renderTasks();}
+    function removeTask(i){if(!confirm('Удалить задачу?')) return; projects[selectedProject].tasks.splice(i,1); saveProjects(); renderTasks();}
+    window.addProject=addProject; window.selectProject=selectProject; window.deleteProject=deleteProject; window.addTaskToProject=addTaskToProject; window.toggleTask=toggleTask; window.removeTask=removeTask; renderProjects(); renderTasks();
+
+    // small helpers
+    function escapeHtml(s){return s ? s.replace(/[&<>\"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c]||c)) : '';}
+
+    // expose for console
+    window.getState = ()=>({flights:JSON.parse(localStorage.getItem(FLIGHTS_KEY)||'[]'), projects:JSON.parse(localStorage.getItem(PROJECTS_KEY)||'[]')});
+
+  </script>
+</body>
+</html>
